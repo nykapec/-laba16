@@ -98,5 +98,115 @@ public:
 int main()
 {
 
+ #include <iostream>
+using namespace std;
+
+class Rational
+{
+private:
+    int numenator;
+    int denominator;
+
+    static int GreatestCommonDivisor(int leftD, int rightD)
+    {
+        int tmp;
+        while (rightD > 0)
+        {
+            tmp = leftD % rightD;
+            leftD = rightD;
+            rightD = tmp;
+        }
+
+        return leftD;
+    }
+
+    static int LeastCommonMultiply(int leftD, int rightD)
+    {
+        return GreatestCommonDivisor(leftD, rightD) * leftD * rightD;
+    }
+
+    static void ReduceFraction(Rational& rational)
+    {
+        int tmpNum = rational.numenator;
+        int tmpDem = rational.denominator;
+        int buffer;
+
+        while (buffer = tmpNum % tmpDem)
+        {
+            tmpNum = tmpDem;
+            tmpDem = buffer;
+        }
+
+        rational.numenator = rational.numenator / buffer;
+        rational.denominator = rational.denominator / buffer;
+    }
+
+public:
+    Rational(int numenator = 1, int denominator = 1)
+    {
+        this->numenator = numenator;
+        this->denominator = denominator;
+
+        Rational::ReduceFraction(*this);
+    }
+
+    void PrintShort()
+    {
+        printf("%d/%d\n", numenator, denominator);
+    }
+
+    void PrintFull()
+    {
+        cout << (float)numenator / denominator << endl;
+    }
+
+    static Rational Add(Rational left, Rational right)
+    {
+        int dem = LeastCommonMultiply(left.denominator, right.denominator);
+        Rational result((left.numenator + right.numenator) * dem, left.denominator * dem);
+        Rational::ReduceFraction(result);
+        return result;
+    }
+
+    static Rational Sub(Rational left, Rational right)
+    {
+        int dem = GreatestCommonDivisor(left.denominator, right.denominator);
+
+        int resultNum = left.numenator * right.denominator - left.denominator * right.numenator;
+        int resultDem = GreatestCommonDivisor(left.denominator, right.denominator);
+        Rational result(resultNum, resultDem);
+        Rational::ReduceFraction(result);
+        return result;
+    }
+
+    static Rational Mul(Rational left, Rational right)
+    {
+        Rational result(left.numenator * right.numenator, left.denominator * right.denominator);
+        Rational::ReduceFraction(result);
+        return result;
+    }
+
+    static Rational Div(Rational left, Rational right)
+    {
+        Rational result(left.numenator * right.denominator, left.denominator * right.numenator);
+        Rational::ReduceFraction(result);
+        return result;
+    }
+};
+
+int main()
+{
+    Rational a(10, 10);
+    Rational b(6, 6);
+
+    Rational* test = Rational::Add(a, b);
+    test->PrintFull();
+    delete test; 
+    test = Rational::Sub(a, b);
+    test->PrintShort();
+    delete test;
+
+    _CrtDumpMemoryLeaks();
     return 0;
 }
+
